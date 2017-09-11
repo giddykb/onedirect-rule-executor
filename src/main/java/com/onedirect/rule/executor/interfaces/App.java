@@ -1,4 +1,4 @@
-package com.onedirectrule.executor;
+package com.onedirect.rule.executor.interfaces;
 
 import java.io.IOException;
 import java.util.HashMap;

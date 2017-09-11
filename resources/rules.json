@@ -1,0 +1,150 @@
+Sample 1 :  
+Rule : (Priority is High)
+
+
+	{
+	      "condition": null,
+	      "rules": [
+	        
+	      ],
+	      "basicRule": {
+	        "key": "Priority",
+	        "operator": "is",
+	        "value": "High"
+	      }
+	}
+
+
+
+
+--------------------
+
+Sample 2 :
+
+Rule :  (source is 2 ) AND (subSource is 1 )
+
+Respective JSON:
+
+			{
+			  "condition": "AND",
+			  "rules": [
+			    {
+			      "condition": null,
+			      "rules": [
+			        
+			      ],
+			      "basicRule": {
+			        "key": "source",
+			        "opertor": "is",
+			        "value": "2"
+			      }
+			    },
+			    {
+			      "condition": null,
+			      "rules": [
+			        
+			      ],
+			      "basicRule": {
+			        "key": "subSource",
+			        "operator": "is",
+			        "value": "1"
+			      }
+			    }
+			  ],
+			  "basicRule": null
+			}
+
+-------------------------------------------------------------
+
+Sample 3 : 
+
+Complex Rule : (( (source is 2 ) AND (subSource is 1 ) ) OR ( (source is 1 ) AND (subSource is 1 ) ) ) AND  ((Priority is High))
+
+
+
+Respective JSON: 
+		{
+		  "condition": "AND",
+		  "rules": [
+		    {
+		      "condition": "OR",
+		      "rules": [
+		        {
+		          "condition": "AND",
+		          "rules": [
+		            {
+		              "condition": null,
+		              "rules": [
+		                
+		              ],
+		              "basicRule": {
+		                "key": "source",
+		                "operator": "is",
+		                "value": "2"
+		              }
+		            },
+		            {
+		              "condition": null,
+		              "rules": [
+		                
+		              ],
+		              "basicRule": {
+		                "key": "subSource",
+		                "operator": "is",
+		                "value": "1"
+		              }
+		            }
+		          ],
+		          "basicRule": null
+		        },
+		        {
+		          "condition": "AND",
+		          "rules": [
+		            {
+		              "condition": null,
+		              "rules": [
+		                
+		              ],
+		              "basicRule": {
+		                "key": "source",
+		                "operator": "is",
+		                "value": "1"
+		              }
+		            },
+		            {
+		              "condition": null,
+		              "rules": [
+		                
+		              ],
+		              "basicRule": {
+		                "key": "subSource",
+		                "operator": "is",
+		                "value": "1"
+		              }
+		            }
+		          ],
+		          "basicRule": null
+		        }
+		      ],
+		      "basicRule": null
+		    },
+		    {
+		      "condition": null,
+		      "rules": [
+		        
+		      ],
+		      "basicRule": {
+		        "key": "Priority",
+		        "operator": "is",
+		        "value": "High"
+		      }
+		    }
+		  ],
+		  "basicRule": null
+		}
+
+
+
+
+
+ 

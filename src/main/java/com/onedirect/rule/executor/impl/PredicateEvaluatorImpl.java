@@ -7,14 +7,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.onedirect.rule.executor.bean.BasicRuleCondition;
-import com.onedirectrule.executor.PredicateEvaluator;
+import com.onedirect.rule.executor.exception.BusinessHrsException;
+import com.onedirect.rule.executor.interfaces.PredicateEvaluator;
 
 public class PredicateEvaluatorImpl implements PredicateEvaluator {
 
 	private final HashMap<String, List<String>> dataEvaluationMap;
 	private final HashMap<String, List<String>> bzHrsMap;
 	private final String tokenPattern = " \t\n\r\f,.:;?![]'";
+	
 	private BasicRuleCondition basicRule;
+	
 	private List<String> dataValues;
 
 	public PredicateEvaluatorImpl(BasicRuleCondition basicRule, HashMap<String, List<String>> dataEvaluationMap,
@@ -167,6 +170,7 @@ public class PredicateEvaluatorImpl implements PredicateEvaluator {
 
 	@Override
 	public boolean afterPredicate(BasicRuleCondition basicRule) {
+		
 		if (dataValues != null && !dataValues.isEmpty()) {
 			Long mapValue = Long.parseLong(dataValues.get(0).trim());
 			Long ruleValue = Long.parseLong(basicRule.getValue().get(0).trim());
@@ -176,23 +180,34 @@ public class PredicateEvaluatorImpl implements PredicateEvaluator {
 	}
 
 	@Override
-	public boolean betweenPredicate(BasicRuleCondition basicRule) {
+	public boolean betweenPredicate(BasicRuleCondition basicRule) throws BusinessHrsException {
 		dataValues = dataEvaluationMap.get(basicRule.getKey());
+		
+		if(basicRule.getValue().size() < 2 ){
+			  throw new BusinessHrsException("List must be of size Two");	
+
+		}
+
 		if (dataValues != null && !dataValues.isEmpty()) {
 			Long mapValue = Long.parseLong(dataValues.get(0).trim());
 			Long startTime = Long.parseLong(basicRule.getValue().get(0).trim());
-			Long endTime = Long.parseLong(basicRule.getValue().get(0).trim());
+			Long endTime = Long.parseLong(basicRule.getValue().get(1).trim());
 			return startTime.compareTo(mapValue) > 0 && endTime.compareTo(mapValue) < 0;
 		}
 		return false;
 	}
 
 	@Override
-	public boolean during(BasicRuleCondition basicRule) {
+	public boolean during(BasicRuleCondition basicRule) throws BusinessHrsException {
 		// TODO Auto-generated method stub
 		dataValues = dataEvaluationMap.get(basicRule.getKey());
 
 		List<String> bzHrsValues = bzHrsMap.get(basicRule.getValue().get(0));
+		
+		if(bzHrsValues.size() < 2 ){
+		  throw new BusinessHrsException("Business List must be of size Two");	
+		}
+		
 		if (bzHrsValues != null && !bzHrsValues.isEmpty()) {
 
 			Long startTime = Long.parseLong(bzHrsValues.get(0).trim());
@@ -207,16 +222,23 @@ public class PredicateEvaluatorImpl implements PredicateEvaluator {
 	@Override
 	public boolean matches(BasicRuleCondition basicRule) {
 		// TODO Auto-generated method stub
-		return patternMatching(basicRule, true);
+		boolean isMatching = false;
+		return patternMatching(basicRule, isMatching);
 	}
 
 	@Override
 	public boolean notMatches(BasicRuleCondition basicRule) {
 		// TODO Auto-generated method stub
-
-		return patternMatching(basicRule, false);
+		boolean isMatching = false;
+		return patternMatching(basicRule, isMatching);
 	}
-
+	
+	/**
+	 * Implementation of String pattern matching 
+	 * @param basicRule
+	 * @param isMatching -- True: to find matching . False: to find not matching 
+	 * @return
+	 */
 	private boolean patternMatching(BasicRuleCondition basicRule, boolean isMatching) {
 
 		List<String> keywords = basicRule.getValue();

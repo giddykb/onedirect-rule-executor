@@ -1,6 +1,7 @@
-package com.onedirectrule.executor;
+package com.onedirect.rule.executor.interfaces;
 
 import com.onedirect.rule.executor.bean.BasicRuleCondition;
+import com.onedirect.rule.executor.exception.BusinessHrsException;
 
 public interface PredicateEvaluator {
 
@@ -15,8 +16,8 @@ public interface PredicateEvaluator {
 	 boolean beforePredicate(BasicRuleCondition basicRule);
 	 boolean onPredicate(BasicRuleCondition basicRule);
 	 boolean afterPredicate(BasicRuleCondition basicRule);
-	 boolean  betweenPredicate(BasicRuleCondition basicRule);
-	 boolean during(BasicRuleCondition basicRule);
+	 boolean  betweenPredicate(BasicRuleCondition basicRule) throws BusinessHrsException;
+	 boolean during(BasicRuleCondition basicRule) throws BusinessHrsException;
 	 boolean matches(BasicRuleCondition basicRule);
 	 boolean notMatches (BasicRuleCondition basicRule);
 }

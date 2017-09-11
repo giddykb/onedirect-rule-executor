@@ -8,15 +8,18 @@ import java.util.List;
 import com.onedirect.rule.executor.bean.BasicRuleCondition;
 import com.onedirect.rule.executor.bean.RuleBean;
 import com.onedirect.rule.executor.bean.RuleCondition;
-import com.onedirectrule.executor.PredicateEvaluator;
-import com.onedirectrule.executor.RuleExecutor;
+import com.onedirect.rule.executor.interfaces.PredicateEvaluator;
+import com.onedirect.rule.executor.interfaces.RuleExecutor;
 import com.onedirectrule.executor.enums.OperatorEnum;
 
 /**
  *  
  * 
- * This is generic RuleExector library which can be used to across all the  OneDirect rule services like ticketing-rule,assignment-rule,automation-rules..,
- * This class takes list of rules and data  as hahsmap on whcih the 
+ * This is generic RuleExector library which can be used to across all the OneDirect rule services such as  ticketing-rule,assignment-rule,automation-rules..,
+ * This class takes list of rules and data  as HashMap<String, List<String>>  additionally  to handle rules having business hours 
+ *  another HashMap<String, List<String>> is passed in the constructor 
+ *  
+ *  A generic JSON template  for rule condition is created to evaluate any kind of the rules. Sample JSON Formats for Rule Conditions can be found in resources folder 
  *
  */
 
@@ -33,13 +36,17 @@ public class RuleExecutorImpl implements RuleExecutor {
 	
 	private  RuleCondition ruleConditions ;
 	
-	PredicateEvaluator predicteEvaluator;
+	private PredicateEvaluator predicteEvaluator;
+	
+	private RuleBean matchedRule;
+	
 	
 	/**
 	 * 
-	 * @param rules
-	 * @param dataEvaluationMap
-	 * @param bzHrsMap
+	 * @param rules -- List of the rules on which the data mapping should be evaluated 
+	 * @param dataEvaluationMap --  Data mapping to be evaluated  Key: condition fields as ,String Value :List of Strings 
+	 * @param bzHrsMap --  mapping to handle business hours case. Key : id as String ,Value : List of time stamps as strings .
+	 *                     Ideally two values having startTime and endTime  
 	 */
 	public RuleExecutorImpl(List<RuleBean> rules ,HashMap<String, List<String>> dataEvaluationMap,HashMap<String , List<String>> bzHrsMap) {
 		// TODO Auto-generated constructor stub
@@ -52,7 +59,7 @@ public class RuleExecutorImpl implements RuleExecutor {
 	
 	
 	/**
-	 * 
+	 *  This is used for Testing to evaluate the Rule conditions . 
 	 * @param ruleCondtions
 	 * @param dataEvaluationMap
 	 * @param bzHrsMap
@@ -85,7 +92,7 @@ public class RuleExecutorImpl implements RuleExecutor {
 	
 	
 	/**
-	 * 
+	 * This method executes the rules on the data Mapping and return the Matching rule
 	 */
 	public RuleBean execute() {
 		// TODO Auto-generated method stub
@@ -94,7 +101,8 @@ public class RuleExecutorImpl implements RuleExecutor {
 		for (RuleBean ruleBean : rules) {
 			RuleCondition ruleConditions = ruleBean.getConditions();
 			int sz = ruleConditions.getRules().size();
-			boolean matchedRule =execute(ruleConditions, 0, sz);
+			execute(ruleConditions, 0, sz);
+			matchedRule = ruleBean;
 			return ruleBean;
 		}
 		
@@ -104,16 +112,16 @@ public class RuleExecutorImpl implements RuleExecutor {
 		return null;
 	}
 	/**
-	 * 
+	 * Recursive function to execute the rule condition 
 	 * @param ruleCondition
 	 * @param low
 	 * @param high
-	 * @return
+	 * @return boolean
 	 */
 	public boolean execute(RuleCondition ruleCondition,int low,int high ){
 		
 		if(ruleCondition.getCondition() != null && ruleCondition.getRules() != null
-				&& !ruleCondition.getRules().isEmpty() && low==ruleCondition.getRules().size()) return true;
+				&& !ruleCondition.getRules().isEmpty() && low == ruleCondition.getRules().size()) return true;
 		
 		if(ruleCondition.getCondition() == null){
 			return executeBasicRule(ruleCondition.getBasicRule());
@@ -128,7 +136,11 @@ public class RuleExecutorImpl implements RuleExecutor {
 		
 	
 	}
-	
+	/**
+	 *  Function to execute the basicRule based on the operator 
+	 * @param basicRule 
+	 * @return boolean  
+	 */
 	private boolean executeBasicRule(BasicRuleCondition basicRule){
 		//PredicateEvaluator predicteEvaluator =  new PredicateEvaluatorImpl(basicRule, map, bzHrsMap);
 		
@@ -162,10 +174,46 @@ public class RuleExecutorImpl implements RuleExecutor {
 			
 		case OperatorEnum.NOTCONTAINSANYMATCH:
 			return predicteEvaluator.notMatches(basicRule);
+			
 		default:
 			break;
+			
 		}
 		return false;
 	}
+
+	
+	public PredicateEvaluator getPredicteEvaluator() {
+		return predicteEvaluator;
+	}
+
+
+	public void setPredicteEvaluator(PredicateEvaluator predicteEvaluator) {
+		this.predicteEvaluator = predicteEvaluator;
+	}
+
+
+	public RuleBean getMatchedRule() {
+		return matchedRule;
+	}
+
+
+	public List<RuleBean> getRules() {
+		return rules;
+	}
+
+
+	public HashMap<String, List<String>> getDataEvaluationMap() {
+		return dataEvaluationMap;
+	}
+
+
+	public HashMap<String, List<String>> getBzHrsMap() {
+		return bzHrsMap;
+	}
+	
+	
+	
+	
 
 }
